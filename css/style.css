@@ -594,14 +594,28 @@ footer .footer-logo {
 }
 footer .footer-socials a {
   margin-right: 1rem;
+  
 }
 footer .footer-socials {
   margin-bottom: 3rem;
   margin-right: -1rem;
+  
 }
 footer .copyright {
   color: var(--ternary);
 }
+
+footer p {
+  color: var(--ternary);
+  font-size: 0.9rem;
+}
+
+footer .footer-socials a img {
+  width: 40px;
+  height: 40px;
+  
+}
+
 
 .site-main-wrapper {
   position: relative;
