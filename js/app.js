@@ -18,12 +18,24 @@ let hamberger = document.querySelector('.hamberger');
 let times = document.querySelector('.times');
 let mobileNav = document.querySelector('.mobile-nav');
 
+function closeMobileNav() {
+    mobileNav.classList.remove('open');
+    mobileNav.setAttribute('aria-hidden', 'true');
+    hamberger.setAttribute('aria-expanded', 'false');
+}
+
 hamberger.addEventListener('click', function(){
-  mobileNav.classList.add('open');  
+    mobileNav.classList.add('open');
+    mobileNav.setAttribute('aria-hidden', 'false');
+    hamberger.setAttribute('aria-expanded', 'true');
 });
 
 times.addEventListener('click', function(){
-    mobileNav.classList.remove('open');  
+        closeMobileNav();
+});
+
+mobileNav.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', closeMobileNav);
 });
 
     $('.hero-slider').slick({
