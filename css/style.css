@@ -145,6 +145,7 @@ header nav .right .btn {
 }
 .hero-clip {
   padding-top: var(--nav-offset);
+  padding-bottom: 3rem;
 }
 
 .hero {
@@ -277,7 +278,7 @@ header nav .right .btn {
   }
   section.freelancer {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%);
-    padding-bottom: 8rem;
+    padding-bottom: 4rem;
   }
   section.reviews .slider .slide {
     padding: 0;
@@ -378,7 +379,7 @@ section.about .social a img {
 .section-heading + p {
   color: var(--ternary);
   font-family: "Lato", sans-serif;
-  margin-bottom: 8rem;
+  margin-bottom: 4rem;
   text-align: center;
 }
 section.services {
@@ -437,7 +438,7 @@ section.freelancer {
     url(../images/camera.png);
   color: var(--pure);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%);
-  padding-bottom: 14rem;
+  padding-bottom: 6rem;
 }
 section.freelancer h1 {
   font-size: 3rem;
@@ -551,7 +552,7 @@ section.work .card-wrapper .card img {
 section.blog {
   background: var(--dark);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%);
-  padding-bottom: 12rem;
+  padding-bottom: 6rem;
 }
 section.blog .section-heading {
   color: var(--pure);
@@ -657,7 +658,7 @@ section.contact .btn-wrapper {
 footer {
   background: var(--dark);
   text-align: center;
-  padding: 5rem 0;
+  padding: 6rem 0;
 }
 footer .footer-logo {
   margin-bottom: 3rem;
@@ -955,7 +956,11 @@ footer .footer-socials a img {
   }
 
   section.freelancer {
-    padding: 4rem 1rem 6rem;
+    padding: 4rem 1rem;
+  }
+
+  section.blog {
+    padding-bottom: 4rem;
   }
 
   section.freelancer h1 {
