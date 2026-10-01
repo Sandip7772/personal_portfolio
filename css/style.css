@@ -767,7 +767,7 @@ footer .footer-socials a img {
   margin-bottom: 3.5rem;
 }
 .mobile-nav-branding img {
-  height: 32px;
+  height: 48px;
 }
 
 .mobile-nav ul {
@@ -798,7 +798,7 @@ footer .footer-socials a img {
   display: inline-block;
   color: var(--pure);
   text-decoration: none;
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 600;
   transition: all 0.3s ease;
 }

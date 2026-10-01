@@ -16,13 +16,29 @@ $('.slider').slick({
 
 let hamberger = document.querySelector('.hamberger');
 let mobileNav = document.querySelector('.mobile-nav');
+let lockedScrollY = 0;
 
-function setMobileNavOpen(isOpen) {
+function setMobileNavOpen(isOpen, options) {
+    options = options || {};
     mobileNav.classList.toggle('open', isOpen);
     hamberger.classList.toggle('active', isOpen);
     mobileNav.setAttribute('aria-hidden', String(!isOpen));
     hamberger.setAttribute('aria-expanded', String(isOpen));
     hamberger.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+
+    if (isOpen) {
+        lockedScrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${lockedScrollY}px`;
+        document.body.style.width = '100%';
+    } else {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        if (options.restoreScroll !== false) {
+            window.scrollTo(0, lockedScrollY);
+        }
+    }
 }
 
 hamberger.addEventListener('click', function(){
@@ -30,8 +46,16 @@ hamberger.addEventListener('click', function(){
 });
 
 mobileNav.querySelectorAll('a').forEach(function(link) {
-    link.addEventListener('click', function(){
-        setMobileNavOpen(false);
+    link.addEventListener('click', function(e){
+        const targetId = link.getAttribute('href');
+        const targetEl = targetId && targetId.startsWith('#') ? document.querySelector(targetId) : null;
+
+        setMobileNavOpen(false, { restoreScroll: !targetEl });
+
+        if (targetEl) {
+            e.preventDefault();
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
 });
 
