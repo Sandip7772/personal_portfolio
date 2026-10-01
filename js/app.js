@@ -15,27 +15,30 @@ $('.slider').slick({
 
 
 let hamberger = document.querySelector('.hamberger');
-let times = document.querySelector('.times');
 let mobileNav = document.querySelector('.mobile-nav');
 
-function closeMobileNav() {
-    mobileNav.classList.remove('open');
-    mobileNav.setAttribute('aria-hidden', 'true');
-    hamberger.setAttribute('aria-expanded', 'false');
+function setMobileNavOpen(isOpen) {
+    mobileNav.classList.toggle('open', isOpen);
+    hamberger.classList.toggle('active', isOpen);
+    mobileNav.setAttribute('aria-hidden', String(!isOpen));
+    hamberger.setAttribute('aria-expanded', String(isOpen));
+    hamberger.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
 }
 
 hamberger.addEventListener('click', function(){
-    mobileNav.classList.add('open');
-    mobileNav.setAttribute('aria-hidden', 'false');
-    hamberger.setAttribute('aria-expanded', 'true');
-});
-
-times.addEventListener('click', function(){
-        closeMobileNav();
+    setMobileNavOpen(!mobileNav.classList.contains('open'));
 });
 
 mobileNav.querySelectorAll('a').forEach(function(link) {
-    link.addEventListener('click', closeMobileNav);
+    link.addEventListener('click', function(){
+        setMobileNavOpen(false);
+    });
+});
+
+document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && mobileNav.classList.contains('open')) {
+        setMobileNavOpen(false);
+    }
 });
 
     $('.hero-slider').slick({
