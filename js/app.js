@@ -65,6 +65,37 @@ document.addEventListener('keydown', function(e){
     }
 });
 
+let navSpyLinks = document.querySelectorAll('header nav .left a[href^="#"], .mobile-nav ul li a[href^="#"]');
+let navSpySections = Array.from(
+    new Set(Array.from(navSpyLinks).map(function (link) { return link.getAttribute('href'); }))
+)
+    .map(function (href) { return document.querySelector(href); })
+    .filter(Boolean);
+
+function updateActiveNavLink() {
+    const scrollPos = window.scrollY + 120;
+    let currentId = navSpySections.length ? navSpySections[0].id : null;
+
+    navSpySections.forEach(function (section) {
+        if (section.offsetTop <= scrollPos) {
+            currentId = section.id;
+        }
+    });
+
+    navSpyLinks.forEach(function (link) {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+    });
+}
+
+window.addEventListener('scroll', updateActiveNavLink, { passive: true });
+window.addEventListener('load', updateActiveNavLink);
+window.addEventListener('resize', updateActiveNavLink);
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateActiveNavLink);
+}
+setInterval(updateActiveNavLink, 500);
+updateActiveNavLink();
+
     $('.hero-slider').slick({
         autoplay: true,
         autoplaySpeed: 2000,

@@ -121,7 +121,8 @@ header nav .left a {
   -ms-transition: all 0.3s ease;
   -o-transition: all 0.3s ease;
 }
-header nav .left a:hover {
+header nav .left a:hover,
+header nav .left a.active {
   color: var(--primary);
 }
 header nav {
@@ -307,6 +308,9 @@ section {
 #contact {
   scroll-margin-top: var(--nav-offset);
 }
+.about-inner-wrap {
+  gap: 4rem;
+}
 section.about .about-me-img {
   height: 450px;
 }
@@ -379,7 +383,7 @@ section.about .social a img {
 .section-heading + p {
   color: var(--ternary);
   font-family: "Lato", sans-serif;
-  margin-bottom: 4rem;
+  margin-bottom: 6rem;
   text-align: center;
 }
 section.services {
@@ -605,7 +609,7 @@ section.contact .card-wrapper .card {
   text-align: center;
 }
 section.contact .card-wrapper .card img {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 section.contact .card-wrapper .card h1 {
   font-weight: 400;
@@ -615,7 +619,7 @@ section.contact .card-wrapper .card h6 {
   font-size: 1rem;
   color: var(--ternary);
   font-weight: 400;
-  margin-bottom: 4rem;
+  margin-bottom: 1.5rem;
 }
 
 section.contact .input-wrap {
@@ -658,20 +662,20 @@ section.contact .btn-wrapper {
 footer {
   background: var(--dark);
   text-align: center;
-  padding: 6rem 0;
+  padding: 6rem 0 3rem;
 }
 footer .footer-logo {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
   width: 150px;
 }
 footer .footer-socials a {
   margin-right: 1rem;
-  
+
 }
 footer .footer-socials {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
   margin-right: -1rem;
-  
+
 }
 footer p {
   color: var(--ternary);
@@ -804,7 +808,8 @@ footer .footer-socials a img {
   transition: all 0.3s ease;
 }
 .mobile-nav ul li a:hover,
-.mobile-nav ul li a:focus-visible {
+.mobile-nav ul li a:focus-visible,
+.mobile-nav ul li a.active {
   color: var(--primary);
 }
 
