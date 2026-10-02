@@ -140,6 +140,21 @@ header nav {
 header nav .branding {
   margin-right: 3rem;
 }
+header nav .branding a,
+.mobile-nav-branding a {
+  display: inline-block;
+  line-height: 0;
+}
+header nav .branding img,
+.mobile-nav-branding img {
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+}
+header nav .branding a:hover img,
+header nav .branding a:focus-visible img,
+.mobile-nav-branding a:hover img {
+  opacity: 0.7;
+}
 header nav .right .btn {
   padding: 0.5rem 1.5rem;
   font-size: 0.85rem;
@@ -657,9 +672,19 @@ footer {
   text-align: center;
   padding: 6rem 0 3rem;
 }
-footer .footer-logo {
+footer .footer-logo-link {
+  display: inline-block;
   margin-bottom: 1.5rem;
+}
+footer .footer-logo {
+  display: block;
   width: 150px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+footer .footer-logo-link:hover .footer-logo,
+footer .footer-logo-link:focus-visible .footer-logo {
+  opacity: 0.7;
 }
 footer .footer-socials a {
   margin-right: 1rem;
