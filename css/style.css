@@ -28,7 +28,7 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   overflow-x: hidden;
 }
 * {
@@ -300,13 +300,6 @@ header nav .right .btn {
 
 section {
   padding: 6rem 0;
-}
-#about,
-#services,
-#work,
-#blog,
-#contact {
-  scroll-margin-top: var(--nav-offset);
 }
 .about-inner-wrap {
   gap: 4rem;

@@ -54,7 +54,7 @@ mobileNav.querySelectorAll('a').forEach(function(link) {
 
         if (targetEl) {
             e.preventDefault();
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
     });
 });
