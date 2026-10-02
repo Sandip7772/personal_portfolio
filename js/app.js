@@ -133,17 +133,20 @@ updateActiveNavLink();
 
     function closePopup() {
         $popup.removeClass('show').attr('aria-hidden', 'true');
-        if (popupLastFocus) { popupLastFocus.focus(); }
+        // Only restore focus on desktop; on phones it would reopen the keyboard
+        if (popupLastFocus && window.matchMedia('(hover: hover)').matches) { popupLastFocus.focus({ preventScroll: true }); }
     }
 
     function showPopup(type, title, text) {
         popupLastFocus = document.activeElement;
+        // Close the on-screen keyboard so the popup is not hidden behind it on phones
+        if (popupLastFocus && popupLastFocus !== document.body && popupLastFocus.blur) { popupLastFocus.blur(); }
         $popup.attr('data-type', type);
         $popup.find('.form-popup-icon').html(popupIcons[type]);
         $popup.find('h3').text(title);
         $popup.find('p').text(text);
         $popup.addClass('show').attr('aria-hidden', 'false');
-        $popup.find('.form-popup-close').trigger('focus');
+        $popup.find('.form-popup-close')[0].focus({ preventScroll: true });
     }
 
     $popup.on('click', function(e){

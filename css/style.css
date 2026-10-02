@@ -1020,12 +1020,18 @@ footer .footer-socials a img {
 /* Contact form feedback popup */
 .form-popup {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: rgba(7, 6, 6, 0.6);
   opacity: 0;
   visibility: hidden;
@@ -1105,4 +1111,22 @@ section.contact .btn.is-loading::after {
 }
 @keyframes form-spin {
   to { transform: rotate(360deg); }
+}
+
+.form-popup-box {
+  margin: auto;
+}
+/* Keep the OK button readable after a tap (touch screens keep :hover) */
+.form-popup-close.btn-primary:hover,
+.form-popup-close.btn-primary:focus-visible {
+  background: var(--primary);
+  color: var(--secondary);
+  border-color: var(--primary);
+}
+/* iOS zooms into inputs under 16px, which pushes the fixed popup out of view */
+@media (max-width: 700px) {
+  section.contact input,
+  section.contact .input-wrap-2 textarea {
+    font-size: 16px;
+  }
 }
