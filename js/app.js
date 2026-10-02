@@ -133,9 +133,17 @@ updateActiveNavLink();
             return;
         }
 
+        const now = new Date();
+        const pad = function(n){ return String(n).padStart(2, '0'); };
+        const time = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() +
+            ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+
         emailjs.send('service_1ew76zf', 'template_8hvg1wu', {
+            name: name,
             user_name: name,
+            email: email,
             user_email: email,
+            time: time,
             subject: subject,
             message: message
         }).then(function(response) {
