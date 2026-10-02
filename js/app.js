@@ -199,9 +199,79 @@ updateActiveNavLink();
         });
     }
 
+    // Google reCAPTCHA v2 (site key is public; the secret key lives only in the EmailJS dashboard)
+    const RECAPTCHA_SITE_KEY = '6LfLgdstAAAAAHJ7vucHOdN0svs0oh1MzNL3yRhw';
+    let captchaWidgetId = null;
+
+    window.renderContactCaptcha = function () {
+        if (captchaWidgetId !== null || !window.grecaptcha || !document.getElementById('contactCaptcha')) { return; }
+        captchaWidgetId = grecaptcha.render('contactCaptcha', { sitekey: RECAPTCHA_SITE_KEY });
+    };
+    if (window.recaptchaReady) { window.renderContactCaptcha(); }
+
+    // Spam / abuse limits (client-side; slows casual bots only, see EmailJS dashboard limits too)
+    const MIN_FILL_MS = 3000;            // humans take longer than this to fill the form
+    const COOLDOWN_MS = 60 * 1000;       // minimum gap between sends
+    const MAX_PER_HOUR = 3;              // sends allowed per browser per hour
+    const SEND_LOG_KEY = 'contactSendLog';
+    const formShownAt = Date.now();
+    let isSending = false;
+
+    function readSendLog() {
+        try {
+            const log = JSON.parse(localStorage.getItem(SEND_LOG_KEY) || '[]');
+            return Array.isArray(log) ? log.filter(function(t){ return Date.now() - t < 3600000; }) : [];
+        } catch (err) { return []; }
+    }
+    function recordSend() {
+        try {
+            const log = readSendLog();
+            log.push(Date.now());
+            localStorage.setItem(SEND_LOG_KEY, JSON.stringify(log));
+        } catch (err) { /* storage unavailable: ignore */ }
+    }
+    function sendLimitMessage() {
+        const log = readSendLog();
+        if (log.length && Date.now() - log[log.length - 1] < COOLDOWN_MS) {
+            return 'Please wait a minute before sending another message.';
+        }
+        if (log.length >= MAX_PER_HOUR) {
+            return 'You have reached the message limit for now. Please try again later.';
+        }
+        return '';
+    }
+
     // Form submission handler
     $('#contactForm').on('submit', function(e){
         e.preventDefault();
+
+        if (isSending) { return; }
+
+        // Honeypot: real visitors never see or fill this field, bots usually do. Pretend success.
+        if ($('input[name="website"]').val()) {
+            showPopup('success', 'Message sent', 'Thank you for getting in touch.');
+            this.reset();
+            return;
+        }
+        if (Date.now() - formShownAt < MIN_FILL_MS) {
+            showPopup('error', 'Please slow down', 'Please take a moment to review your message and try again.');
+            return;
+        }
+        const limitMessage = sendLimitMessage();
+        if (limitMessage) {
+            showPopup('error', 'Too many messages', limitMessage);
+            return;
+        }
+
+        if (captchaWidgetId === null) {
+            showPopup('error', 'Verification unavailable', 'The security check could not load. Please refresh the page and try again.');
+            return;
+        }
+        const captchaToken = grecaptcha.getResponse(captchaWidgetId);
+        if (!captchaToken) {
+            showPopup('error', 'Please verify', 'Please tick "I\'m not a robot" before sending.');
+            return;
+        }
 
         const name = $('input[name="user_name"]').val();
         const email = $('input[name="user_email"]').val();
@@ -216,6 +286,7 @@ updateActiveNavLink();
         const $submitBtn = $(this).find('button[type="submit"]');
         const submitLabel = $submitBtn.text();
         const resetSubmitBtn = function(){
+            isSending = false;
             $submitBtn.removeClass('is-loading').prop('disabled', false).text(submitLabel);
         };
 
@@ -225,6 +296,7 @@ updateActiveNavLink();
             return;
         }
 
+        isSending = true;
         $submitBtn.addClass('is-loading').prop('disabled', true).text('Checking email...');
 
         domainReceivesMail(email.split('@')[1]).then(function(canReceive){
@@ -250,12 +322,16 @@ updateActiveNavLink();
             user_email: email,
             time: time,
             subject: subject,
-            message: message
+            message: message,
+            'g-recaptcha-response': captchaToken
         }).then(function(response) {
+            grecaptcha.reset(captchaWidgetId);
             resetSubmitBtn();
+            recordSend();
             showPopup('success', 'Message sent', 'Thank you for getting in touch. I will reply soon, and a confirmation has been sent to your email.');
             $('#contactForm')[0].reset();
         }, function(error) {
+            grecaptcha.reset(captchaWidgetId);
             resetSubmitBtn();
             showPopup('error', 'Message not sent', 'Something went wrong' + (error && error.text ? ' (' + error.text + ')' : '') + '. Please try again in a moment.');
         });
