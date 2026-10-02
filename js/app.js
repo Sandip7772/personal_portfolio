@@ -113,26 +113,128 @@ updateActiveNavLink();
     // Initialize EmailJS
     emailjs.init('AIIFJ5WXpaw9xbEWW');
     
+    // Feedback popup (replaces the browser alert)
+    const popupIcons = {
+        success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+        error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+    };
+    let popupLastFocus = null;
+
+    const $popup = $(
+        '<div class="form-popup" aria-hidden="true">' +
+            '<div class="form-popup-box" role="alertdialog" aria-modal="true" aria-labelledby="form-popup-title" aria-describedby="form-popup-text">' +
+                '<div class="form-popup-icon"></div>' +
+                '<h3 id="form-popup-title"></h3>' +
+                '<p id="form-popup-text"></p>' +
+                '<button type="button" class="form-popup-close btn btn-primary">OK</button>' +
+            '</div>' +
+        '</div>'
+    ).appendTo('body');
+
+    function closePopup() {
+        $popup.removeClass('show').attr('aria-hidden', 'true');
+        if (popupLastFocus) { popupLastFocus.focus(); }
+    }
+
+    function showPopup(type, title, text) {
+        popupLastFocus = document.activeElement;
+        $popup.attr('data-type', type);
+        $popup.find('.form-popup-icon').html(popupIcons[type]);
+        $popup.find('h3').text(title);
+        $popup.find('p').text(text);
+        $popup.addClass('show').attr('aria-hidden', 'false');
+        $popup.find('.form-popup-close').trigger('focus');
+    }
+
+    $popup.on('click', function(e){
+        if (e.target === this || $(e.target).hasClass('form-popup-close')) { closePopup(); }
+    });
+    $(document).on('keydown', function(e){
+        if (e.key === 'Escape' && $popup.hasClass('show')) { closePopup(); }
+    });
+
+    // Email validation helpers
+    const commonDomainTypos = {
+        'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.con': 'gmail.com',
+        'gamil.com': 'gmail.com', 'gnail.com': 'gmail.com', 'gmaill.com': 'gmail.com',
+        'yaho.com': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'yahooo.com': 'yahoo.com',
+        'hotmial.com': 'hotmail.com', 'hotmail.con': 'hotmail.com', 'hotnail.com': 'hotmail.com',
+        'outlok.com': 'outlook.com', 'outlook.con': 'outlook.com'
+    };
+
+    function checkEmailFormat(email) {
+        const emailRegex = /^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
+        const parts = email.split('@');
+        if (!emailRegex.test(email) || email.indexOf('..') !== -1 || parts[0].charAt(0) === '.' || parts[0].slice(-1) === '.') {
+            return 'Please enter a valid email address.';
+        }
+        const suggestion = commonDomainTypos[parts[1].toLowerCase()];
+        if (suggestion) {
+            return 'Did you mean ' + parts[0] + '@' + suggestion + '?';
+        }
+        return '';
+    }
+
+    // Checks the domain has mail (MX) records via DNS-over-HTTPS. Only the domain is sent.
+    // If the lookup itself fails (offline, blocked), do not block the visitor.
+    function domainReceivesMail(domain) {
+        const controller = new AbortController();
+        const timer = setTimeout(function(){ controller.abort(); }, 4000);
+        return fetch('https://cloudflare-dns.com/dns-query?name=' + encodeURIComponent(domain) + '&type=MX', {
+            headers: { 'Accept': 'application/dns-json' },
+            signal: controller.signal
+        }).then(function(res){
+            if (!res.ok) { throw new Error('lookup failed'); }
+            return res.json();
+        }).then(function(data){
+            clearTimeout(timer);
+            if (data.Status === 3) { return false; }
+            return !!(data.Answer && data.Answer.length);
+        }).catch(function(){
+            clearTimeout(timer);
+            return true;
+        });
+    }
+
     // Form submission handler
     $('#contactForm').on('submit', function(e){
         e.preventDefault();
-        
+
         const name = $('input[name="user_name"]').val();
         const email = $('input[name="user_email"]').val();
         const subject = $('input[name="subject"]').val();
         const message = $('textarea[name="message"]').val();
-        
+
         if(!name || !email || !message || !subject){
-            alert('Please fill in all required fields');
-            return;
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!emailRegex.test(email)){
-            alert('Please enter a valid email address');
+            showPopup('error', 'Missing details', 'Please fill in all required fields.');
             return;
         }
 
+        const $submitBtn = $(this).find('button[type="submit"]');
+        const submitLabel = $submitBtn.text();
+        const resetSubmitBtn = function(){
+            $submitBtn.removeClass('is-loading').prop('disabled', false).text(submitLabel);
+        };
+
+        const formatError = checkEmailFormat(email);
+        if(formatError){
+            showPopup('error', 'Invalid email', formatError);
+            return;
+        }
+
+        $submitBtn.addClass('is-loading').prop('disabled', true).text('Checking email...');
+
+        domainReceivesMail(email.split('@')[1]).then(function(canReceive){
+            if(!canReceive){
+                resetSubmitBtn();
+                showPopup('error', 'Email not recognised', 'The domain in your email address cannot receive mail. Please check for typos and try again.');
+                return;
+            }
+            $submitBtn.text('Sending...');
+            sendMessage();
+        });
+
+        function sendMessage(){
         const now = new Date();
         const pad = function(n){ return String(n).padStart(2, '0'); };
         const time = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() +
@@ -147,11 +249,14 @@ updateActiveNavLink();
             subject: subject,
             message: message
         }).then(function(response) {
-            alert('Message sent successfully!');
+            resetSubmitBtn();
+            showPopup('success', 'Message sent', 'Thank you for getting in touch. I will reply soon, and a confirmation has been sent to your email.');
             $('#contactForm')[0].reset();
         }, function(error) {
-            alert('Failed to send message: ' + error.text);
+            resetSubmitBtn();
+            showPopup('error', 'Message not sent', 'Something went wrong' + (error && error.text ? ' (' + error.text + ')' : '') + '. Please try again in a moment.');
         });
+        }
     });
 });
 
