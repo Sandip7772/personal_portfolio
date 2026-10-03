@@ -93,7 +93,6 @@ window.addEventListener('resize', updateActiveNavLink);
 if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(updateActiveNavLink);
 }
-setInterval(updateActiveNavLink, 500);
 updateActiveNavLink();
 
     $('.hero-slider').slick({
@@ -178,23 +177,33 @@ updateActiveNavLink();
         return '';
     }
 
-    // Checks the domain has mail (MX) records via DNS-over-HTTPS. Only the domain is sent.
-    // If the lookup itself fails (offline, blocked), do not block the visitor.
-    function domainReceivesMail(domain) {
+    // Checks the domain can receive mail via DNS-over-HTTPS. Only the domain is sent.
+    // A domain with no MX record can still receive mail at its A/AAAA address (RFC 5321), so fall back to that.
+    // If a lookup itself fails (offline, blocked), do not block the visitor.
+    function dnsLookup(domain, type) {
         const controller = new AbortController();
         const timer = setTimeout(function(){ controller.abort(); }, 4000);
-        return fetch('https://cloudflare-dns.com/dns-query?name=' + encodeURIComponent(domain) + '&type=MX', {
+        return fetch('https://cloudflare-dns.com/dns-query?name=' + encodeURIComponent(domain) + '&type=' + type, {
             headers: { 'Accept': 'application/dns-json' },
             signal: controller.signal
         }).then(function(res){
+            clearTimeout(timer);
             if (!res.ok) { throw new Error('lookup failed'); }
             return res.json();
-        }).then(function(data){
+        }, function(err){
             clearTimeout(timer);
-            if (data.Status === 3) { return false; }
-            return !!(data.Answer && data.Answer.length);
+            throw err;
+        });
+    }
+
+    function domainReceivesMail(domain) {
+        return dnsLookup(domain, 'MX').then(function(mx){
+            if (mx.Status === 3) { return false; }
+            if (mx.Answer && mx.Answer.length) { return true; }
+            return dnsLookup(domain, 'A').then(function(a){
+                return !!(a.Answer && a.Answer.length);
+            });
         }).catch(function(){
-            clearTimeout(timer);
             return true;
         });
     }
@@ -248,7 +257,7 @@ updateActiveNavLink();
         if (isSending) { return; }
 
         // Honeypot: real visitors never see or fill this field, bots usually do. Pretend success.
-        if ($('input[name="website"]').val()) {
+        if ($('input[name="hp_check"]').val()) {
             showPopup('success', 'Message sent', 'Thank you for getting in touch.');
             this.reset();
             return;

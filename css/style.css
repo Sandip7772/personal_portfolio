@@ -1156,14 +1156,14 @@ section.contact .btn.is-loading::after {
 }
 
 /* reCAPTCHA checkbox */
-/* The widget is a fixed 304x78; scale it to 40% (about 122x31) so it stays narrower than the Send button */
+/* The widget is a fixed 304x78; scale it to 55% (about 167x43) so it is smaller than the Send button (229x48) in both width and height */
 .captcha-wrap {
-  width: 122px;
-  height: 31px;
+  width: 167px;
+  height: 43px;
   margin: 1rem auto 0;
 }
 .captcha-wrap > div {
-  transform: scale(0.4);
+  transform: scale(0.55);
   transform-origin: 0 0;
 }
 /* Tighter gap between the captcha and the Send button (was 2rem) */
