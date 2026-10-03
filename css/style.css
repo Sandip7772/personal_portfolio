@@ -923,6 +923,11 @@ footer .footer-socials a img {
     padding: 4rem 0;
   }
 
+  /* Phone sections have less top padding than the fixed navbar is tall, so leave room when jumping to them */
+  section[id] {
+    scroll-margin-top: 2rem;
+  }
+
   .hero-slider .hero,
   .hero {
     flex-direction: column;
