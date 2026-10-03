@@ -160,7 +160,7 @@ header nav .right .btn {
   font-size: 0.85rem;
 }
 /* The whole button is the link, not just the text inside it */
-header nav .right a.btn {
+a.btn {
   display: inline-block;
   line-height: normal;
   text-decoration: none;
