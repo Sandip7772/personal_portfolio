@@ -159,6 +159,13 @@ header nav .right .btn {
   padding: 0.5rem 1.5rem;
   font-size: 0.85rem;
 }
+/* The whole button is the link, not just the text inside it */
+header nav .right a.btn {
+  display: inline-block;
+  line-height: normal;
+  text-decoration: none;
+  text-align: center;
+}
 .hero-clip {
   padding-top: var(--nav-offset);
   padding-bottom: 3rem;
@@ -607,6 +614,9 @@ section.blog .card-wrapper .card .card-content p {
   color: var(--ternary);
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+section.contact .section-heading + p {
+  margin-bottom: 3rem;
 }
 section.contact .card-wrapper {
   display: grid;
@@ -1141,14 +1151,17 @@ section.contact .btn.is-loading::after {
 }
 
 /* reCAPTCHA checkbox */
+/* The widget is a fixed 304x78; scale it to 40% (about 122x31) so it stays narrower than the Send button */
 .captcha-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
+  width: 122px;
+  height: 31px;
+  margin: 1rem auto 0;
 }
-@media (max-width: 340px) {
-  .captcha-wrap {
-    transform: scale(0.85);
-    transform-origin: center top;
-  }
+.captcha-wrap > div {
+  transform: scale(0.4);
+  transform-origin: 0 0;
+}
+/* Tighter gap between the captcha and the Send button (was 2rem) */
+section.contact .captcha-wrap + .btn-wrapper {
+  margin-top: 0.75rem;
 }
