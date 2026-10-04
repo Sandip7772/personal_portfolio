@@ -109,6 +109,121 @@ updateActiveNavLink();
 
 
 
+    // Latest blog posts, read from the blog's posts.json feed
+    (function loadLatestBlogs() {
+        const BLOG_URL = 'https://blog.khadkasandip.com.np';
+        const MAX_POSTS = 9;
+        const grid = document.getElementById('latestBlogsGrid');
+        if (!grid) { return; }
+
+        // Only accept links and images that live on the blog's own domain
+        function safeBlogUrl(value) {
+            try {
+                const u = new URL(value, BLOG_URL);
+                return u.origin === BLOG_URL ? u.href : '';
+            } catch (err) { return ''; }
+        }
+        function formatDate(value) {
+            const d = new Date(value);
+            if (isNaN(d.getTime())) { return ''; }
+            return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+        }
+        function el(tag, className, text) {
+            const node = document.createElement(tag);
+            if (className) { node.className = className; }
+            if (text) { node.textContent = text; }
+            return node;
+        }
+        function showMessage(text) {
+            grid.textContent = '';
+            grid.appendChild(el('p', 'latest-blogs-status', text));
+        }
+        // Blog links open the blog post in a new tab
+        function openInNewTab(link) {
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+        }
+        function buildCard(post) {
+            const url = safeBlogUrl(post.url);
+            if (!url || !post.title) { return null; }
+
+            const card = el('article', 'blog-card');
+            const imgUrl = post.image ? safeBlogUrl(post.image) : '';
+            if (imgUrl) {
+                const imgLink = el('a', 'blog-card-img');
+                imgLink.href = url;
+                openInNewTab(imgLink);
+                imgLink.tabIndex = -1;
+                imgLink.setAttribute('aria-hidden', 'true');
+                const img = el('img');
+                img.src = imgUrl;
+                img.alt = '';
+                img.loading = 'lazy';
+                imgLink.appendChild(img);
+                card.appendChild(imgLink);
+            }
+
+            const body = el('div', 'blog-card-body');
+            const date = formatDate(post.date);
+            if (date) { body.appendChild(el('span', 'blog-card-date', date)); }
+            const title = el('h3');
+            const titleLink = el('a', '', String(post.title));
+            titleLink.href = url;
+            openInNewTab(titleLink);
+            title.appendChild(titleLink);
+            body.appendChild(title);
+            if (post.excerpt) { body.appendChild(el('p', '', String(post.excerpt))); }
+            const more = el('a', 'blog-card-more', 'Read More');
+            more.href = url;
+            openInNewTab(more);
+            body.appendChild(more);
+            card.appendChild(body);
+            return card;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(function(){ controller.abort(); }, 6000);
+        fetch(BLOG_URL + '/posts.json', { signal: controller.signal })
+            .then(function(res){
+                clearTimeout(timer);
+                if (!res.ok) { throw new Error('feed unavailable'); }
+                return res.json();
+            })
+            .then(function(posts){
+                const cards = (Array.isArray(posts) ? posts : [])
+                    .sort(function(a, b){ return new Date(b.date) - new Date(a.date); })
+                    .slice(0, MAX_POSTS)
+                    .map(buildCard)
+                    .filter(Boolean);
+                if (!cards.length) { showMessage('New posts are coming soon.'); return; }
+                grid.textContent = '';
+                cards.forEach(function(card){
+                    const slide = el('div', 'blog-slide');
+                    slide.appendChild(card);
+                    grid.appendChild(slide);
+                });
+                // One post at a time, scrollable and auto-playing, like the Reviews section
+                $(grid).slick({
+                    autoplay: true,
+                    autoplaySpeed: 3000,
+                    arrows: false,
+                    dots: true,
+                    appendDots: '.latest-blogs-dots',
+                    dotsClass: 'dots',
+                    infinite: true,
+                    speed: 300,
+                    cssEase: 'linear',
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    pauseOnHover: true
+                });
+            })
+            .catch(function(){
+                clearTimeout(timer);
+                showMessage('Read my latest posts on the blog.');
+            });
+    })();
+
     // Initialize EmailJS
     emailjs.init('AIIFJ5WXpaw9xbEWW');
     

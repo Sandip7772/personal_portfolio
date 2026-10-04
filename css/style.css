@@ -1170,3 +1170,134 @@ section.contact .btn.is-loading::after {
 section.contact .captcha-wrap + .btn-wrapper {
   margin-top: 0.75rem;
 }
+
+/* Latest blogs (fed from blog.khadkasandip.com.np/posts.json) */
+section.latest-blogs {
+  background: var(--light);
+}
+section.latest-blogs .section-heading + p {
+  margin-bottom: 3rem;
+}
+/* Latest blogs: one post at a time, centred and auto-scrolling, same look as Reviews */
+.latest-blogs-grid {
+  overflow: hidden;
+}
+.latest-blogs-grid .blog-slide {
+  text-align: center;
+}
+.blog-card {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 10rem;
+}
+.blog-card-img {
+  display: block;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 2rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.blog-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.blog-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.blog-card-date {
+  color: var(--ternary);
+  font-size: 0.8rem;
+}
+.blog-card-body h3 {
+  margin: 0.4rem 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.blog-card-body h3 a {
+  color: var(--secondary);
+  text-decoration: none;
+}
+.blog-card-body h3 a:hover {
+  color: var(--primary);
+}
+.blog-card-body p {
+  margin-bottom: 1rem;
+  color: var(--ternary);
+  font-family: "Lato", sans-serif;
+  line-height: 1.6;
+}
+.blog-card-more {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.blog-card-more:hover {
+  text-decoration: underline;
+}
+section.latest-blogs .latest-blogs-dots {
+  margin-top: 3rem;
+}
+section.latest-blogs .dots {
+  list-style-type: none;
+  display: flex !important;
+  justify-content: center;
+}
+section.latest-blogs .dots button {
+  font-size: 0;
+  width: 8px;
+  height: 5px;
+  margin-right: 0.3rem;
+  border: none;
+  outline: none;
+  background: var(--ternary);
+  border-radius: 50px;
+  cursor: pointer;
+}
+section.latest-blogs .dots li.slick-active button {
+  background: var(--primary);
+  width: 20px;
+}
+.latest-blogs-status {
+  text-align: center;
+  color: var(--ternary);
+  font-family: "Lato", sans-serif;
+}
+.latest-blogs-cta {
+  margin-top: 2rem;
+  text-align: center;
+}
+@media (max-width: 1024px) {
+  .blog-card {
+    padding: 0 3rem;
+  }
+}
+@media (max-width: 700px) {
+  .blog-card {
+    padding: 0 0.5rem;
+  }
+  .blog-card-body h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Navbar: tighter links on small laptops so all of them fit on one line (1025-1199px) */
+@media (min-width: 1025px) and (max-width: 1199px) {
+  header nav .branding {
+    margin-right: 1.25rem;
+  }
+  header nav .left a {
+    margin-right: 1rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}
